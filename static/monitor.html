@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafetyMonitor — Analyse IA Chantier</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --yellow: #F5C518;
+    --red: #E63946;
+    --teal: #1A8C6E;
+    --black: #0A0A0A;
+    --white: #F5F0E8;
+    --gray: #B0B0A8;
+    --dark-bg: #0f172a;
+    --card-bg: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --green: #22c55e;
+    --orange: #f97316;
+    --violet: #a855f7;
+  }
+
+  body {
+    background: var(--dark-bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ───────────────────────────────────────── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    height: 58px;
+  }
+  .topbar-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.06em;
+    color: var(--white);
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+  .topbar-brand span { color: var(--yellow); }
+  .topbar-right {
+    display: flex; align-items: center; gap: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; letter-spacing: 0.15em;
+  }
+  .model-badge {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .model-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+  .model-badge .dot.orange { background: var(--orange); }
+  .back-btn {
+    color: var(--gray);
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 14px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .back-btn:hover { color: var(--yellow); border-color: var(--yellow); }
+
+  /* ── USER MENU ─────────────────────────────────────── */
+  .user-menu { position: relative; }
+  .user-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; letter-spacing: 0.1em;
+    color: var(--text);
+    transition: border-color 0.2s;
+  }
+  .user-btn:hover { border-color: var(--yellow); }
+  .user-avatar {
+    width: 26px; height: 26px;
+    background: var(--yellow);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #000;
+    flex-shrink: 0;
+  }
+  .user-chevron { color: var(--muted); font-size: 10px; transition: transform 0.2s; }
+  .user-menu.open .user-chevron { transform: rotate(180deg); }
+
+  .user-dropdown {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: #1a2234;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-width: 200px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    display: none;
+    z-index: 200;
+    overflow: hidden;
+  }
+  .user-menu.open .user-dropdown { display: block; }
+
+  .dropdown-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dropdown-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    color: var(--text);
+  }
+  .dropdown-role {
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-top: 2px;
+  }
+
+  .dropdown-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; letter-spacing: 0.08em;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    text-decoration: none;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .dropdown-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .dropdown-item.danger { color: #f87171; }
+  .dropdown-item.danger:hover { background: rgba(248,113,113,0.1); color: #ef4444; }
+  .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* ── LAYOUT ────────────────────────────────────────── */
+  .layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 58px);
+  }
+
+  /* ── SIDEBAR ────────────────────────────────────────── */
+  .sidebar {
+    background: rgba(0,0,0,0.3);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem;
+    display: flex; flex-direction: column; gap: 1.2rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 58px);
+    position: sticky; top: 58px;
+  }
+
+  .panel-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 0.6rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border);
+  }
+
+  /* Drop zone */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--yellow);
+    background: rgba(245,197,24,0.04);
+  }
+  .drop-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .drop-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .drop-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; letter-spacing: 0.1em;
+    color: var(--muted); text-transform: uppercase;
+  }
+  .drop-hint { font-size: 11px; color: #475569; margin-top: 4px; }
+
+  #preview-thumb {
+    width: 100%; border-radius: 8px;
+    border: 1px solid var(--border);
+    display: none; object-fit: contain;
+    max-height: 200px;
+    background: #000;
+  }
+
+  /* Sliders */
+  .slider-row {
+    display: flex; flex-direction: column; gap: 0.3rem;
+  }
+  .slider-label {
+    display: flex; justify-content: space-between;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; color: var(--muted);
+  }
+  .slider-label span { color: var(--yellow); font-weight: 700; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px;
+    background: var(--border); border-radius: 2px; outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--yellow); cursor: pointer;
+    border: 2px solid var(--black);
+  }
+
+  /* Analyze button */
+  .analyze-btn {
+    width: 100%;
+    background: var(--yellow);
+    color: var(--black);
+    border: 3px solid var(--black);
+    border-radius: 6px;
+    padding: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .analyze-btn:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--black);
+  }
+  .analyze-btn:disabled {
+    background: var(--border); color: var(--muted);
+    cursor: not-allowed; transform: none; box-shadow: none;
+  }
+
+  /* Status / error */
+  .status-box {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    display: none;
+  }
+  .status-box.error { background: rgba(230,57,70,0.1); border: 1px solid #E63946; color: #E63946; }
+  .status-box.info  { background: rgba(26,140,110,0.1); border: 1px solid var(--teal); color: var(--teal); }
+  .status-box.warn  { background: rgba(245,197,24,0.1); border: 1px solid var(--yellow); color: var(--yellow); }
+
+  /* Score formula legend */
+  .formula-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; color: var(--muted);
+    line-height: 1.8;
+  }
+  .formula-box strong { color: var(--yellow); }
+
+  /* ── MAIN CONTENT ──────────────────────────────────── */
+  .main-content {
+    padding: 1.5rem 1.8rem;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 1.5rem;
+  }
+
+  /* Loading spinner */
+  .loading-overlay {
+    display: none;
+    position: fixed; inset: 58px 0 0 380px;
+    background: rgba(15,23,42,0.88);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 1rem;
+  }
+  .loading-overlay.active { display: flex; }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 4px solid var(--border);
+    border-top-color: var(--yellow);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; letter-spacing: 0.15em;
+    color: var(--muted);
+  }
+
+  /* Annotated image */
+  #annotated-wrap {
+    display: none;
+    border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  #annotated-img { width: 100%; display: block; }
+  .img-legend {
+    background: rgba(0,0,0,0.9);
+    padding: 8px 14px;
+    display: flex; gap: 1.5rem; flex-wrap: wrap;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+  }
+  .img-legend span { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* Global score card */
+  #global-score-card { display: none; }
+  .score-card {
+    border-radius: 14px;
+    padding: 20px 24px;
+    border: 2px solid;
+    font-family: 'Space Mono', monospace;
+  }
+  .score-card-top {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 14px;
+  }
+  .score-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem; line-height: 1;
+  }
+  .score-meta { }
+  .score-level {
+    font-size: 1.2rem; font-weight: 700; font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.1em;
+  }
+  .score-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .score-bar-wrap {
+    height: 16px; background: var(--dark-bg); border-radius: 8px;
+    overflow: hidden; margin: 12px 0;
+  }
+  .score-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+    border-radius: 8px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .score-stats {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 8px; margin: 12px 0;
+  }
+  .stat-chip {
+    background: var(--dark-bg);
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .stat-chip .val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem; line-height: 1;
+  }
+  .stat-chip .lbl {
+    font-size: 9px; color: var(--muted); margin-top: 2px;
+    letter-spacing: 0.1em;
+  }
+  .score-details { font-size: 10px; color: #475569; padding-top: 10px; border-top: 1px solid var(--border); }
+
+  /* Infra section */
+  #infra-section { display: none; }
+  .infra-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px;
+  }
+  .infra-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    color: #fbbf24; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .infra-group-label {
+    font-size: 11px; font-weight: 600;
+    color: var(--text); margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+  .infra-item {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; color: var(--muted); margin-bottom: 4px;
+  }
+  .infra-item .cls-name { min-width: 120px; color: var(--text); }
+  .conf-bar-wrap { flex: 1; background: var(--dark-bg); border-radius: 4px; height: 6px; overflow: hidden; }
+  .conf-bar-fill { height: 100%; background: var(--orange); border-radius: 4px; }
+  .infra-note {
+    font-size: 10px; color: #475569;
+    border-top: 1px solid var(--dark-bg); margin-top: 10px; padding-top: 8px;
+  }
+
+  /* Person cards */
+  #persons-section { display: none; }
+  .persons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+
+  .person-card {
+    border: 2px solid;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'Space Mono', monospace;
+  }
+  .person-card-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .person-id {
+    font-size: 14px; font-weight: 700; color: var(--text);
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.1em;
+  }
+  .person-badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    padding: 2px 8px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .person-body { display: flex; align-items: flex-start; gap: 10px; }
+  .person-photo {
+    border-radius: 8px; object-fit: cover;
+    width: auto; height: 100px;
+    border: 2px solid; flex-shrink: 0;
+    position: relative; display: block;
+  }
+  .person-photo-wrap { position: relative; flex-shrink: 0; }
+  .person-emoji {
+    position: absolute; top: 3px; right: 3px;
+    font-size: 16px; line-height: 1;
+  }
+  .person-silhouette {
+    width: 55px; height: 100px;
+    border-radius: 8px; border: 2px solid;
+    background: #111827;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative;
+  }
+  .person-info { flex: 1; min-width: 0; }
+  .ppe-badges { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+  .ppe-badge {
+    font-size: 10px; padding: 2px 7px; border-radius: 3px;
+    background: rgba(0,0,0,0.3);
+  }
+  .ppe-ok    { color: var(--green); }
+  .ppe-miss  { color: #ef4444; }
+  .ppe-unk   { color: var(--muted); }
+  .person-reason {
+    font-size: 10px; color: var(--muted); margin-top: 2px;
+  }
+  .scaffold-tag {
+    font-size: 10px; color: var(--orange); margin-top: 4px;
+  }
+  .crowd-tag {
+    font-size: 10px; color: var(--violet); margin-top: 2px;
+  }
+  .risk-bar-wrap {
+    background: var(--dark-bg); border-radius: 4px; height: 8px;
+    margin: 8px 0 3px; overflow: hidden;
+  }
+  .risk-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .risk-pct-label {
+    font-size: 10px; color: var(--muted); text-align: right;
+  }
+
+  /* Placeholder / empty state */
+  .empty-state {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    min-height: 50vh;
+    gap: 1rem;
+  }
+  .empty-icon { font-size: 5rem; opacity: 0.2; }
+  .empty-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem; color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .empty-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; color: #334155;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+
+  /* Section heading */
+  .section-heading {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 0.5rem;
+  }
+  .section-heading::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── HISTORY PANEL ─────────────────────────────────── */
+  .history-toggle-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 14px;
+    color: var(--muted); cursor: pointer;
+    font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.15em;
+    text-transform: uppercase; transition: border-color 0.2s, color 0.2s;
+  }
+  .history-toggle-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+  .history-toggle-btn .hist-count {
+    background: var(--yellow); color: #000;
+    border-radius: 10px; font-size: 10px; font-weight: 700;
+    padding: 1px 7px; min-width: 20px; text-align: center;
+  }
+
+  .history-panel {
+    position: fixed; top: 58px; right: 0; bottom: 0;
+    width: 420px; z-index: 300;
+    background: #111827;
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: -8px 0 32px rgba(0,0,0,0.4);
+  }
+  .history-panel.open { transform: translateX(0); }
+
+  .history-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .history-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem;
+    letter-spacing: 0.08em; color: var(--white);
+  }
+  .history-close {
+    background: none; border: none; color: var(--muted);
+    font-size: 18px; cursor: pointer; padding: 4px;
+    transition: color 0.2s;
+  }
+  .history-close:hover { color: var(--yellow); }
+
+  .history-list {
+    flex: 1; overflow-y: auto; padding: 0.8rem;
+    display: flex; flex-direction: column; gap: 0.7rem;
+  }
+  .history-list::-webkit-scrollbar { width: 4px; }
+  .history-list::-webkit-scrollbar-track { background: transparent; }
+  .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .history-empty {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--muted); font-family: 'Space Mono', monospace;
+    font-size: 11px; letter-spacing: 0.1em; line-height: 2;
+  }
+
+  .hist-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .hist-card:hover { border-color: var(--yellow); }
+  .hist-card img {
+    width: 100%; height: 160px; object-fit: cover;
+    display: block;
+    background: #0a0a0a;
+  }
+  .hist-card-body {
+    padding: 0.7rem 0.9rem;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .hist-card-meta {
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .hist-card-date {
+    font-family: 'Space Mono', monospace; font-size: 9px;
+    letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase;
+  }
+  .hist-card-stats {
+    font-size: 11px; color: var(--text);
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .hist-card-stats span { display: flex; align-items: center; gap: 4px; }
+  .hist-badge {
+    font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 3px; letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+  .hist-badge.LOW    { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+  .hist-badge.MEDIUM { background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+  .hist-badge.HIGH   { background: rgba(249,115,22,0.15); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+  .hist-badge.CRITICAL { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+  .hist-delete-btn {
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; font-size: 14px; padding: 4px; line-height: 1;
+    transition: color 0.2s; flex-shrink: 0;
+  }
+  .hist-delete-btn:hover { color: #ef4444; }
+
+  /* Modal lightbox for full image */
+  .hist-modal {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.88);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .hist-modal.open { opacity: 1; pointer-events: all; }
+  .hist-modal img {
+    max-width: 90vw; max-height: 88vh;
+    border-radius: 8px; box-shadow: 0 16px 64px rgba(0,0,0,0.7);
+  }
+  .hist-modal-close {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    background: var(--card-bg); border: 1px solid var(--border);
+    color: var(--text); font-size: 20px; width: 40px; height: 40px;
+    border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .hist-modal-close:hover { border-color: var(--yellow); color: var(--yellow); }
+  .hist-modal-info {
+    position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.6rem 1.2rem;
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    color: var(--text); display: flex; gap: 1.5rem; white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; max-height: none; border-right: none; border-bottom: 1px solid var(--border); }
+    .loading-overlay { inset: 58px 0 0 0; }
+    .score-stats { grid-template-columns: repeat(3, 1fr); }
+    .history-panel { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <a href="/" class="topbar-brand">SAFETY<span>MONITOR</span></a>
+  <div class="topbar-right">
+    <div class="model-badge"><span class="dot orange"></span>vew.pt</div>
+    <div class="model-badge"><span class="dot"></span>scafandri.pt</div>
+    <a href="/" class="back-btn">← Accueil</a>
+    <button class="history-toggle-btn" onclick="toggleHistory()" id="historyToggleBtn">
+      📋 Historique <span class="hist-count" id="histCount">0</span>
+    </button>
+    <div class="user-menu" id="userMenu">
+      <button class="user-btn" onclick="toggleUserMenu()">
+        <div class="user-avatar" id="userInitial">?</div>
+        <span id="userNameDisplay">...</span>
+        <span class="user-chevron">▼</span>
+      </button>
+      <div class="user-dropdown">
+        <div class="dropdown-header">
+          <div class="dropdown-name" id="dropdownName">—</div>
+          <div class="dropdown-role" id="dropdownRole">—</div>
+        </div>
+        <a href="/" class="dropdown-item">🏠 Accueil</a>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item danger" onclick="doLogout()">⏻ Déconnexion</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">ANALYSE EN COURS...</div>
+</div>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────── -->
+  <aside class="sidebar">
+
+    <div>
+      <div class="panel-label">01 — Image</div>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="imageInput" accept="image/*">
+        <div class="drop-icon">📷</div>
+        <div class="drop-text">Déposer une image</div>
+        <div class="drop-hint">ou cliquer pour sélectionner · JPG, PNG, WEBP</div>
+      </div>
+      <img id="preview-thumb" alt="Aperçu">
+    </div>
+
+    <div>
+      <div class="panel-label">02 — Paramètres</div>
+      <div class="slider-row">
+        <div class="slider-label">
+          vew.pt confidence
+          <span id="confVewVal">0.25</span>
+        </div>
+        <input type="range" id="confVew" min="0.10" max="0.90" step="0.05" value="0.25">
+      </div>
+      <br>
+      <div class="slider-row">
+        <div class="slider-label">
+          scafandri.pt confidence
+          <span id="confScafVal">0.25</span>
+        </div>
+        <input type="range" id="confScaf" min="0.10" max="0.90" step="0.05" value="0.25">
+      </div>
+    </div>
+
+    <div id="statusBox" class="status-box"></div>
+
+    <button class="analyze-btn" id="analyzeBtn" disabled>
+      🔍 ANALYSER L'IMAGE
+    </button>
+
+    <div>
+      <div class="panel-label">Score Formula</div>
+      <div class="formula-box">
+        <strong>Score</strong> = min(100, PPE + Scaf + Crowd)<br>
+        <strong>PPE_risk</strong>    → max <strong>50</strong> pts<br>
+        <strong>Scaffold_risk</strong> → max <strong>35</strong> pts<br>
+        <strong>Crowd_risk</strong>  → max <strong>15</strong> pts<br>
+        <br>
+        🟢 0-20 LOW · 🟡 21-50 MEDIUM<br>
+        🟠 51-80 HIGH · 🔴 81-100 CRITICAL
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MAIN ────────────────────────────────────────── -->
+  <main class="main-content" id="mainContent">
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🏗️</div>
+      <div class="empty-title">PRÊT À ANALYSER</div>
+      <div class="empty-sub">Charger une image du chantier · cliquer Analyser</div>
+    </div>
+
+    <!-- Annotated image -->
+    <div id="annotated-wrap">
+      <div class="section-heading">Image Annotée — PPE + Scaffold + Infrastructure</div>
+      <img id="annotated-img" alt="Annotated">
+      <div class="img-legend">
+        <span><span class="legend-dot" style="background:#00dc00"></span>PPE OK</span>
+        <span><span class="legend-dot" style="background:#ff3333"></span>VIOLATION</span>
+        <span><span class="legend-dot" style="background:#ffa040"></span>PARTIEL</span>
+        <span><span class="legend-dot" style="background:#00c8ff"></span>Scaffold</span>
+        <span><span class="legend-dot" style="background:#ffd000"></span>Infra</span>
+      </div>
+    </div>
+
+    <!-- Global score card -->
+    <div id="global-score-card">
+      <div class="section-heading">Score de Risque Global</div>
+      <div class="score-card" id="scoreCardInner">
+        <div class="score-card-top">
+          <div class="score-big" id="scoreBig">—</div>
+          <div class="score-meta">
+            <div class="score-level" id="scoreLevel">—</div>
+            <div class="score-sub">Score de danger global / 100</div>
+          </div>
+        </div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div>
+        </div>
+        <div class="score-stats" id="scoreStats"></div>
+        <div class="score-details" id="scoreDetails"></div>
+      </div>
+    </div>
+
+    <!-- Infrastructure detections -->
+    <div id="infra-section">
+      <div class="section-heading">Infrastructure Détectée — vew.pt</div>
+      <div class="infra-card" id="infraCard"></div>
+    </div>
+
+    <!-- Per-person cards -->
+    <div id="persons-section">
+      <div class="section-heading">Détail par Personne — PPE + Score individuel</div>
+      <div class="persons-grid" id="personsGrid"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── Slider live values ─────────────────────────────────────
+const confVew  = document.getElementById('confVew');
+const confScaf = document.getElementById('confScaf');
+confVew.addEventListener('input',  () => document.getElementById('confVewVal').textContent  = parseFloat(confVew.value).toFixed(2));
+confScaf.addEventListener('input', () => document.getElementById('confScafVal').textContent = parseFloat(confScaf.value).toFixed(2));
+
+// ── Image upload / drag ────────────────────────────────────
+const dropZone   = document.getElementById('dropZone');
+const imageInput = document.getElementById('imageInput');
+const previewThumb = document.getElementById('preview-thumb');
+const analyzeBtn   = document.getElementById('analyzeBtn');
+let selectedFile   = null;
+
+function setFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  selectedFile = file;
+  previewThumb.style.display = 'block';
+  previewThumb.src = URL.createObjectURL(file);
+  analyzeBtn.disabled = false;
+  showStatus('Image chargée — cliquer Analyser pour lancer l\'analyse.', 'info');
+}
+
+imageInput.addEventListener('change', e => setFile(e.target.files[0]));
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  setFile(e.dataTransfer.files[0]);
+});
+
+// ── Status helper ──────────────────────────────────────────
+function showStatus(msg, type = 'info') {
+  const box = document.getElementById('statusBox');
+  box.textContent = msg;
+  box.className = `status-box ${type}`;
+  box.style.display = 'block';
+}
+function hideStatus() { document.getElementById('statusBox').style.display = 'none'; }
+
+// ── Analyze ────────────────────────────────────────────────
+analyzeBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+
+  document.getElementById('loadingOverlay').classList.add('active');
+  analyzeBtn.disabled = true;
+  hideStatus();
+
+  const fd = new FormData();
+  fd.append('image', selectedFile);
+  fd.append('conf_vew',  confVew.value);
+  fd.append('conf_scaf', confScaf.value);
+
+  try {
+    const res = await fetch('/api/analyze', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    renderResults(data);
+    hideStatus();
+  } catch(e) {
+    showStatus('❌ ' + e.message, 'error');
+  } finally {
+    document.getElementById('loadingOverlay').classList.remove('active');
+    analyzeBtn.disabled = false;
+  }
+});
+
+// ── Render ─────────────────────────────────────────────────
+function renderResults(d) {
+  document.getElementById('emptyState').style.display = 'none';
+
+  // Annotated image
+  const wrap = document.getElementById('annotated-wrap');
+  wrap.style.display = 'block';
+  document.getElementById('annotated-img').src = 'data:image/jpeg;base64,' + d.annotated_b64;
+
+  // Global score
+  renderScoreCard(d);
+
+  // Infra
+  renderInfra(d);
+
+  // Persons
+  renderPersons(d);
+}
+
+function levelMeta(level) {
+  return {
+    SAFE:     { color: '#22c55e', bg: 'rgba(34,197,94,0.08)',  label: '🟢 SÉCURISÉ' },
+    LOW:      { color: '#86efac', bg: 'rgba(134,239,172,0.08)', label: '🟢 FAIBLE' },
+    MEDIUM:   { color: '#eab308', bg: 'rgba(234,179,8,0.08)',  label: '🟡 MOYEN' },
+    HIGH:     { color: '#f97316', bg: 'rgba(249,115,22,0.08)', label: '🟠 ÉLEVÉ' },
+    CRITICAL: { color: '#ef4444', bg: 'rgba(239,68,68,0.08)',  label: '🔴 CRITIQUE' },
+  }[level] || { color: '#888', bg: '#111', label: level };
+}
+
+function renderScoreCard(d) {
+  const card = document.getElementById('global-score-card');
+  card.style.display = 'block';
+  const { color, bg, label } = levelMeta(d.level);
+  const inner = document.getElementById('scoreCardInner');
+  inner.style.borderColor = color;
+  inner.style.background = bg;
+
+  document.getElementById('scoreBig').textContent  = d.score;
+  document.getElementById('scoreBig').style.color  = color;
+  document.getElementById('scoreLevel').textContent = label;
+  document.getElementById('scoreLevel').style.color = color;
+
+  const bar = document.getElementById('scoreBarFill');
+  bar.style.width = d.score + '%';
+
+  document.getElementById('scoreStats').innerHTML = `
+    <div class="stat-chip"><div class="val" style="color:#60a5fa">${d.n_persons}</div><div class="lbl">Personnes</div></div>
+    <div class="stat-chip"><div class="val" style="color:#ef4444">${d.n_violators}</div><div class="lbl">Violations</div></div>
+    <div class="stat-chip"><div class="val" style="color:#f97316">${d.ppe_risk}</div><div class="lbl">+pts PPE</div></div>
+    <div class="stat-chip"><div class="val" style="color:#f97316">${d.scaf_score}</div><div class="lbl">+pts Scaffold</div></div>
+    <div class="stat-chip"><div class="val" style="color:#a855f7">${d.crowd_bonus}</div><div class="lbl">+pts Groupe</div></div>
+  `;
+
+  const scafRows = (d.scaf_reasons||[]).map(r => `<div>${r}</div>`).join('');
+  const crowdRow = d.crowd_reason ? `<div style="color:#a855f7">${d.crowd_reason}</div>` : '';
+  document.getElementById('scoreDetails').innerHTML = `
+    <div>Conformité PPE: <span style="color:#22c55e;font-weight:700">${(d.score_ppe||0).toFixed(1)}%</span>
+     &nbsp;|&nbsp; Casques manquants: ${d.missing_helm}
+     &nbsp;|&nbsp; Gilets manquants: ${d.missing_vest}
+    </div>
+    <div style="margin-top:4px;color:#475569;font-size:9px">
+      Formule: Score = min(100, PPE_risk[max 50] + Scaffold_risk[max 35] + Crowd[max 15])
+    </div>
+    ${scafRows}${crowdRow}
+  `;
+}
+
+function renderInfra(d) {
+  const sec = document.getElementById('infra-section');
+  if (!d.infra_dets || d.infra_dets.length === 0) {
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = 'block';
+  const groups = {};
+  const catLabel = {
+    danger:  '🔴 Zone de Danger / Panneau',
+    barrier: '🟡 Barrière / Clôture',
+    cone:    '🟠 Cône de Signalisation',
+  };
+  d.infra_dets.forEach(det => {
+    const cat = catLabel[det.category] || '⚪ Autre';
+    (groups[cat] = groups[cat] || []).push(det);
+  });
+
+  let html = `<div class="infra-title">🚧 ${d.infra_dets.length} objet(s) infrastructure détecté(s) par vew.pt</div>`;
+  for (const [cat, items] of Object.entries(groups)) {
+    html += `<div style="margin-bottom:10px"><div class="infra-group-label">${cat} × ${items.length}</div>`;
+    items.forEach(item => {
+      const pct = Math.round(item.confidence * 100);
+      html += `
+        <div class="infra-item">
+          <span class="cls-name">${item.class}</span>
+          <div class="conf-bar-wrap"><div class="conf-bar-fill" style="width:${pct}%"></div></div>
+          <span>${pct}%</span>
+        </div>`;
+    });
+    html += `</div>`;
+  }
+  html += `<div class="infra-note">Ces objets sont affichés sur l'image annotée mais n'affectent pas directement le score de risque.</div>`;
+  document.getElementById('infraCard').innerHTML = html;
+}
+
+function renderPersons(d) {
+  const sec = document.getElementById('persons-section');
+  if (!d.persons || d.persons.length === 0) {
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = 'block';
+
+  const statusMeta = {
+    SAFE:      { color: '#22c55e', bg: '#052e0a', icon: '✅', lbl: 'CONFORME' },
+    VIOLATION: { color: '#ef4444', bg: '#2d0505', icon: '🚨', lbl: 'VIOLATION' },
+    PARTIAL:   { color: '#f97316', bg: '#2a1200', icon: '⚠️', lbl: 'PARTIEL' },
+    UNKNOWN:   { color: '#a855f7', bg: '#1a0a2e', icon: '❓', lbl: 'INCONNU' },
+  };
+
+  const grid = document.getElementById('personsGrid');
+  grid.innerHTML = '';
+
+  d.persons.forEach(pr => {
+    const { color, bg, icon, lbl } = statusMeta[pr.status] || statusMeta.UNKNOWN;
+    const pct = pr.score_pct || 0;
+    const emoji = pct > 50 ? '🔴' : pct > 20 ? '🟡' : '🟢';
+    const barColor = pct > 50 ? '#ef4444' : pct > 20 ? '#f97316' : pct > 0 ? '#eab308' : '#22c55e';
+
+    const hBadge = pr.helmet_status
+      ? `<span class="ppe-badge ppe-ok">✅ Casque</span>`
+      : pr.helmet_missing
+        ? `<span class="ppe-badge ppe-miss">❌ Casque</span>`
+        : `<span class="ppe-badge ppe-unk">❓ Casque</span>`;
+    const vBadge = pr.vest_status
+      ? `<span class="ppe-badge ppe-ok">✅ Gilet</span>`
+      : pr.vest_missing
+        ? `<span class="ppe-badge ppe-miss">❌ Gilet</span>`
+        : `<span class="ppe-badge ppe-unk">❓ Gilet</span>`;
+
+    const scafTag = pr.on_scaffold
+      ? `<div class="scaffold-tag">🏗 Sur échafaud (PPE aggravé)</div>` : '';
+    const crowdTag = pr.crowd_share > 0 && pr.status === 'VIOLATION'
+      ? `<div class="crowd-tag">👥 Bonus groupe +${pr.crowd_share}pts</div>` : '';
+
+    const reasons = (pr.reasons || [])
+      .filter(r => !r.startsWith('  →'))
+      .map(r => `<div class="person-reason">${r}</div>`)
+      .join('');
+
+    let photoHtml;
+    if (pr.crop_b64) {
+      photoHtml = `
+        <div class="person-photo-wrap">
+          <img src="data:image/png;base64,${pr.crop_b64}"
+               class="person-photo" style="border-color:${color}" alt="P${pr.index}">
+          <div class="person-emoji">${emoji}</div>
+        </div>`;
+    } else {
+      const sc = color;
+      photoHtml = `
+        <div class="person-silhouette" style="border-color:${color};background:#111827">
+          <svg width="42" height="80" viewBox="0 0 52 90" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="26" cy="16" rx="14" ry="10" fill="${pr.helmet_status ? '#22c55e' : '#ef4444'}" opacity="0.9"/>
+            <ellipse cx="26" cy="30" rx="9" ry="10" fill="#c9a87c"/>
+            <rect x="15" y="40" width="22" height="26" rx="4" fill="${sc}" opacity="0.8"/>
+            <rect x="6" y="40" width="9" height="18" rx="3" fill="#475569"/>
+            <rect x="37" y="40" width="9" height="18" rx="3" fill="#475569"/>
+            <rect x="16" y="66" width="9" height="18" rx="3" fill="#334155"/>
+            <rect x="27" y="66" width="9" height="18" rx="3" fill="#334155"/>
+          </svg>
+          <div style="position:absolute;top:3px;right:3px;font-size:14px">${emoji}</div>
+        </div>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'person-card';
+    card.style.borderColor = color;
+    card.style.background  = bg;
+    card.innerHTML = `
+      <div class="person-card-top">
+        <div class="person-id">Personne ${pr.index}</div>
+        <div class="person-badge" style="color:${color};background:${color}22">
+          ${icon} ${lbl}
+        </div>
+      </div>
+      <div class="person-body">
+        ${photoHtml}
+        <div class="person-info">
+          <div class="ppe-badges">${hBadge}${vBadge}</div>
+          ${scafTag}${crowdTag}${reasons}
+        </div>
+      </div>
+      <div class="risk-bar-wrap">
+        <div class="risk-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+      </div>
+      <div class="risk-pct-label">${pct}% risque individuel</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ── HISTORY ────────────────────────────────────────────────
+let historyOpen = false;
+let historyData = [];
+
+function toggleHistory() {
+  historyOpen = !historyOpen;
+  document.getElementById('historyPanel').classList.toggle('open', historyOpen);
+  if (historyOpen) loadHistory();
+}
+
+async function loadHistory() {
+  const list = document.getElementById('historyList');
+  list.innerHTML = '<div class="history-empty">Chargement…</div>';
+  try {
+    const r = await fetch('/api/history');
+    if (!r.ok) throw new Error();
+    historyData = await r.json();
+    document.getElementById('histCount').textContent = historyData.length;
+    renderHistory();
+  } catch(e) {
+    list.innerHTML = '<div class="history-empty">Erreur lors du chargement.</div>';
+  }
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!historyData.length) {
+    list.innerHTML = '<div class="history-empty">📭 Aucun test effectué<br>sur ce compte.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  historyData.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'hist-card';
+    const d = new Date(item.created_at);
+    const dateStr = d.toLocaleDateString('fr-FR', {day:'2-digit',month:'short',year:'numeric'})
+      + ' · ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+    const imgSrc = item.image_b64 ? `data:image/jpeg;base64,${item.image_b64}` : '';
+    card.innerHTML = `
+      ${imgSrc ? `<img src="${imgSrc}" alt="Analyse" loading="lazy" onclick="openModal('${imgSrc}', ${JSON.stringify(item).replace(/"/g,'&quot;')})">` : '<div style="height:80px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;">Pas d\'image</div>'}
+      <div class="hist-card-body">
+        <div class="hist-card-meta">
+          <div class="hist-card-date">${dateStr}</div>
+          <div class="hist-card-stats">
+            <span>👤 ${item.n_persons} pers.</span>
+            <span>⚠️ ${item.n_violators} viol.</span>
+            <span>🎯 Score ${item.risk_score}</span>
+          </div>
+        </div>
+        <span class="hist-badge ${item.risk_level}">${item.risk_level}</span>
+        <button class="hist-delete-btn" onclick="deleteHistory(${item.id}, event)" title="Supprimer">🗑</button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function openModal(imgSrc, item) {
+  const modal = document.getElementById('histModal');
+  document.getElementById('histModalImg').src = imgSrc;
+  const d = new Date(item.created_at);
+  const dateStr = d.toLocaleDateString('fr-FR', {day:'2-digit',month:'short',year:'numeric'})
+    + ' ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('histModalInfo').innerHTML =
+    `<span>📅 ${dateStr}</span><span>👤 ${item.n_persons} personnes</span><span>⚠️ ${item.n_violators} violations</span><span>🎯 Score ${item.risk_score} — <strong style="color:var(--yellow)">${item.risk_level}</strong></span>`;
+  modal.classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('histModal') || e.currentTarget.classList.contains('hist-modal-close')) {
+    document.getElementById('histModal').classList.remove('open');
+  }
+}
+
+async function deleteHistory(id, e) {
+  e.stopPropagation();
+  if (!confirm('Supprimer cet enregistrement ?')) return;
+  await fetch(`/api/history/${id}`, { method: 'DELETE' });
+  historyData = historyData.filter(h => h.id !== id);
+  document.getElementById('histCount').textContent = historyData.length;
+  renderHistory();
+}
+
+// Refresh history count on page load
+(async () => {
+  try {
+    const r = await fetch('/api/history');
+    if (r.ok) {
+      const data = await r.json();
+      document.getElementById('histCount').textContent = data.length;
+    }
+  } catch(e) {}
+})();
+
+// ── USER MENU ──────────────────────────────────────────────
+function toggleUserMenu() {
+  document.getElementById('userMenu').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!document.getElementById('userMenu').contains(e.target)) {
+    document.getElementById('userMenu').classList.remove('open');
+  }
+});
+async function doLogout() {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
+(async () => {
+  try {
+    const r = await fetch('/api/me');
+    if (r.ok) {
+      const u = await r.json();
+      document.getElementById('userInitial').textContent    = u.username[0].toUpperCase();
+      document.getElementById('userNameDisplay').textContent = u.username;
+      document.getElementById('dropdownName').textContent   = u.username;
+      document.getElementById('dropdownRole').textContent   = u.role === 'admin' ? 'Administrateur' : 'Viewer';
+    }
+  } catch(e) {}
+})();
+
+(async () => {
+  try {
+    const res  = await fetch('/api/status');
+    const data = await res.json();
+    if (!data.ready) {
+      const missing = Object.entries(data.models)
+        .filter(([,ok]) => !ok)
+        .map(([k]) => k + '.pt')
+        .join(', ');
+      showStatus(`⚠️ Modèle(s) manquant(s): ${missing} — placez-les dans le dossier de app.py`, 'warn');
+    }
+  } catch(e) {
+    showStatus('⚠️ Impossible de contacter le serveur Flask. Vérifiez que app.py tourne.', 'error');
+  }
+})();
+</script>
+<!-- ── HISTORY PANEL ───────────────────────────────────── -->
+<div class="history-panel" id="historyPanel">
+  <div class="history-header">
+    <div class="history-title">HISTORIQUE</div>
+    <button class="history-close" onclick="toggleHistory()">✕</button>
+  </div>
+  <div class="history-list" id="historyList">
+    <div class="history-empty">Chargement…</div>
+  </div>
+</div>
+
+<!-- ── LIGHTBOX MODAL ─────────────────────────────────── -->
+<div class="hist-modal" id="histModal" onclick="closeModal(event)">
+  <button class="hist-modal-close" onclick="closeModal()">✕</button>
+  <img id="histModalImg" src="" alt="Analyse">
+  <div class="hist-modal-info" id="histModalInfo"></div>
+</div>
+
+</body>
+</html>

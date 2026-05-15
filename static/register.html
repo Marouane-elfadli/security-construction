@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafetyMonitor — Créer un compte</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --yellow: #F5C518;
+    --red:    #E63946;
+    --teal:   #1A8C6E;
+    --black:  #0A0A0A;
+    --white:  #FAFAF8;
+    --gray:   #B0B0A8;
+    --border: rgba(10,10,10,0.12);
+  }
+  body {
+    background: var(--white);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    cursor: none;
+  }
+  #cursor {
+    width: 14px; height: 14px;
+    background: var(--black); border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.18s, height 0.18s, background 0.18s;
+  }
+  #cursor.hover { width: 44px; height: 44px; background: var(--yellow); mix-blend-mode: multiply; }
+
+  /* ── LEFT PANEL ── */
+  .panel-left {
+    background: var(--black);
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem;
+    position: relative; overflow: hidden;
+  }
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: grid-drift 20s linear infinite;
+  }
+  @keyframes grid-drift { from { background-position: 0 0; } to { background-position: 60px 60px; } }
+  .diag { position: absolute; bottom: -60px; right: -60px; width: 280px; height: 280px; border: 2px solid var(--yellow); transform: rotate(18deg); opacity: 0.18; }
+  .diag2 { position: absolute; top: 80px; left: -40px; width: 160px; height: 160px; border: 1px solid var(--teal); transform: rotate(-8deg); opacity: 0.3; }
+
+  .brand-top { position: relative; z-index: 2; }
+  .brand-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+  .logo-mark { width: 36px; height: 36px; background: var(--yellow); clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); flex-shrink: 0; }
+  .brand-name { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+
+  .brand-headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 5vw, 5rem);
+    line-height: 0.92; color: var(--white); letter-spacing: 0.02em;
+    position: relative; z-index: 2;
+  }
+  .brand-headline span { color: var(--yellow); }
+
+  .brand-bottom { position: relative; z-index: 2; }
+  .steps { display: flex; flex-direction: column; gap: 16px; }
+  .step { display: flex; align-items: flex-start; gap: 14px; }
+  .step-num {
+    width: 28px; height: 28px; border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.4);
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step.active .step-num { border-color: var(--yellow); color: var(--yellow); }
+  .step-text { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+  .step.active .step-text { color: rgba(255,255,255,0.75); }
+  .step-title { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
+
+  /* ── RIGHT PANEL ── */
+  .panel-right {
+    display: flex; align-items: center; justify-content: center;
+    padding: 3rem; background: var(--white); position: relative;
+  }
+  .panel-right::before {
+    content: ''; position: absolute; left: 0; top: 10%; bottom: 10%;
+    width: 1px; background: var(--border);
+  }
+  .form-container { width: 100%; max-width: 400px; animation: slideUp 0.7s cubic-bezier(0.4,0,0.2,1) both; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+  .form-tag {
+    font-family: 'Space Mono', monospace; font-size: 10px;
+    letter-spacing: 0.3em; text-transform: uppercase; color: var(--gray);
+    margin-bottom: 2rem; display: flex; align-items: center; gap: 8px;
+  }
+  .form-tag::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gray); }
+
+  .form-title { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; line-height: 1; color: var(--black); margin-bottom: 0.3rem; }
+  .form-subtitle { font-size: 13px; color: var(--gray); margin-bottom: 2rem; font-weight: 300; }
+
+  .field-group { margin-bottom: 1.1rem; }
+  .field-label { display: block; font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--black); margin-bottom: 8px; font-weight: 700; }
+
+  .field-wrap { position: relative; }
+  .field-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray); font-size: 14px; pointer-events: none; }
+
+  input[type="text"], input[type="password"], input[type="email"] {
+    width: 100%; padding: 13px 13px 13px 40px;
+    border: 1.5px solid var(--border); background: transparent;
+    font-family: 'Space Mono', monospace; font-size: 13px;
+    color: var(--black); outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  input:focus { border-color: var(--black); background: rgba(245,197,24,0.04); }
+  input:focus ~ .field-focus-bar { transform: scaleX(1); }
+  .field-focus-bar { height: 2px; background: var(--yellow); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; margin-top: -1.5px; }
+
+  /* Password strength */
+  .strength-bar { margin-top: 6px; height: 3px; background: rgba(0,0,0,0.08); border-radius: 2px; overflow: hidden; }
+  .strength-fill { height: 100%; width: 0%; transition: width 0.3s, background 0.3s; border-radius: 2px; }
+  .strength-label { font-size: 10px; font-family: 'Space Mono', monospace; color: var(--gray); margin-top: 4px; letter-spacing: 0.1em; }
+
+  /* Role selector */
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px; }
+  .role-card {
+    border: 1.5px solid var(--border); padding: 10px 12px;
+    cursor: none; transition: border-color 0.2s, background 0.2s; position: relative;
+  }
+  .role-card input[type="radio"] { position: absolute; opacity: 0; }
+  .role-card:has(input:checked) { border-color: var(--black); background: rgba(0,0,0,0.03); }
+  .role-card-title { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; color: var(--black); margin-bottom: 2px; }
+  .role-card-desc { font-size: 10px; color: var(--gray); line-height: 1.4; }
+  .role-card-check { position: absolute; top: 8px; right: 8px; width: 14px; height: 14px; border: 1.5px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .role-card:has(input:checked) .role-card-check { background: var(--black); border-color: var(--black); }
+  .role-card:has(input:checked) .role-card-check::after { content: ''; width: 5px; height: 5px; background: white; border-radius: 50%; }
+
+  /* Admin code field */
+  #adminCodeField { display: none; }
+
+  .btn-register {
+    width: 100%; padding: 16px;
+    background: var(--black); color: var(--white);
+    border: none; font-family: 'Space Mono', monospace;
+    font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+    cursor: none; position: relative; overflow: hidden;
+    transition: background 0.3s; font-weight: 700; margin-top: 1.5rem;
+  }
+  .btn-register::before { content: ''; position: absolute; inset: 0; background: var(--teal); transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); z-index: 0; }
+  .btn-register:hover::before { transform: translateX(0); }
+  .btn-register span { position: relative; z-index: 1; transition: color 0.3s; }
+  .btn-register:disabled { opacity: 0.5; }
+
+  .spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto; position: relative; z-index: 1; }
+  .btn-register.loading .btn-text { display: none; }
+  .btn-register.loading .spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-msg { display: none; margin-top: 1rem; padding: 12px 14px; border-left: 3px solid var(--red); background: rgba(230,57,70,0.06); font-size: 12px; color: var(--red); font-family: 'Space Mono', monospace; }
+  .error-msg.visible { display: block; }
+  .success-msg { display: none; margin-top: 1rem; padding: 12px 14px; border-left: 3px solid var(--teal); background: rgba(26,140,110,0.07); font-size: 12px; color: var(--teal); font-family: 'Space Mono', monospace; }
+  .success-msg.visible { display: block; }
+
+  .login-link { margin-top: 1.2rem; font-size: 12px; color: var(--gray); font-family: 'Space Mono', monospace; text-align: center; }
+  .login-link a { color: var(--black); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--black); }
+
+  .version-tag { position: absolute; bottom: 2rem; right: 2rem; font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--gray); text-transform: uppercase; }
+
+  .eye-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--gray); cursor: none; font-size: 14px; }
+
+  .otp-box {
+    width: 52px !important; height: 60px !important;
+    padding: 0 !important; padding-left: 0 !important;
+    border: 2px solid var(--border) !important;
+    background: transparent !important;
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 26px !important;
+    color: var(--black) !important;
+    text-align: center !important;
+    outline: none !important;
+    transition: border-color 0.2s, background 0.2s !important;
+    display: flex; align-items: center; justify-content: center;
+    caret-color: var(--yellow);
+  }
+  .otp-box:focus {
+    border-color: var(--black) !important;
+    background: rgba(245,197,24,0.06) !important;
+  }
+  .otp-box.filled {
+    border-color: var(--black) !important;
+    background: rgba(245,197,24,0.04) !important;
+  }
+
+  @media (max-width: 700px) { body { grid-template-columns: 1fr; } .panel-left { display: none; } }
+
+  .or-divider { display: flex; align-items: center; gap: 12px; margin: 1.5rem 0 1rem; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--gray); text-transform: uppercase; }
+  .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .btn-google { width: 100%; padding: 14px 16px; background: white; border: 1.5px solid var(--border); font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--black); cursor: none; display: flex; align-items: center; justify-content: center; gap: 10px; transition: border-color 0.2s, box-shadow 0.2s; font-weight: 700; text-transform: uppercase; }
+  .btn-google:hover { border-color: var(--black); box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .btn-google:disabled { opacity: 0.4; }
+  #googleNotConfigured { display: none; margin-top: 8px; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gray); text-align: center; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div id="cursor"></div>
+
+<!-- LEFT — BRANDING -->
+<div class="panel-left">
+  <div class="grid-bg"></div>
+  <div class="diag"></div>
+  <div class="diag2"></div>
+  <div class="brand-top">
+    <div class="brand-logo">
+      <div class="logo-mark"></div>
+      <span class="brand-name">SafetyMonitor v11</span>
+    </div>
+    <div class="brand-headline">CRÉER<br>UN<br><span>COMPTE</span></div>
+  </div>
+  <div class="brand-bottom">
+    <div class="steps">
+      <div class="step active">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <div class="step-title">Informations</div>
+          Choisissez un identifiant et un mot de passe sécurisé
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <div class="step-title">Rôle</div>
+          Viewer = lecture seule · Admin = gestion complète
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <div class="step-title">Accès</div>
+          Connectez-vous et commencez à analyser les chantiers
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT — FORM -->
+<div class="panel-right">
+  <div class="form-container">
+    <div class="form-tag">Nouveau compte</div>
+    <h1 class="form-title">Inscription</h1>
+    <p class="form-subtitle">Remplissez les informations pour créer votre accès</p>
+
+    <!-- STEP 1: Registration form -->
+    <div id="step1">
+      <div class="field-group">
+        <label class="field-label" for="username">Identifiant</label>
+        <div class="field-wrap">
+          <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="username" placeholder="ex: jean.dupont" autocomplete="username" spellcheck="false">
+          <div class="field-focus-bar"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="email">Email</label>
+        <div class="field-wrap">
+          <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input type="email" id="email" placeholder="votre@email.com" autocomplete="email" spellcheck="false">
+          <div class="field-focus-bar"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="password">Mot de passe</label>
+        <div class="field-wrap">
+          <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="password" placeholder="Min. 6 caractères" autocomplete="new-password" oninput="checkStrength(this.value)">
+          <button class="eye-btn" type="button" onclick="toggleEye('password', this)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <div class="field-focus-bar"></div>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        <div class="strength-label" id="strengthLabel"></div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="confirm">Confirmer le mot de passe</label>
+        <div class="field-wrap">
+          <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="confirm" placeholder="Répétez le mot de passe" autocomplete="new-password">
+          <button class="eye-btn" type="button" onclick="toggleEye('confirm', this)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <div class="field-focus-bar"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Rôle</div>
+        <div class="role-grid">
+          <label class="role-card">
+            <input type="radio" name="role" value="viewer" checked onchange="toggleAdminCode(false)">
+            <div class="role-card-check"></div>
+            <div class="role-card-title">Viewer</div>
+            <div class="role-card-desc">Analyse et consultation uniquement</div>
+          </label>
+          <label class="role-card">
+            <input type="radio" name="role" value="admin" onchange="toggleAdminCode(true)">
+            <div class="role-card-check"></div>
+            <div class="role-card-title">Admin</div>
+            <div class="role-card-desc">Gestion des utilisateurs et logs</div>
+          </label>
+        </div>
+      </div>
+
+      <div class="field-group" id="adminCodeField">
+        <label class="field-label" for="adminCode">Code administrateur</label>
+        <div class="field-wrap">
+          <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <input type="password" id="adminCode" placeholder="Code requis pour le rôle admin">
+          <div class="field-focus-bar"></div>
+        </div>
+      </div>
+
+      <button class="btn-register" id="registerBtn" type="button">
+        <span class="btn-text">Continuer →</span>
+        <div class="spinner"></div>
+      </button>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <div class="or-divider">ou</div>
+
+      <button class="btn-google" id="googleBtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        S'inscrire avec Google
+      </button>
+      <div id="googleNotConfigured">
+        ⚠ Google OAuth non configuré —<br>ajoutez GOOGLE_CLIENT_ID dans .env
+      </div>
+
+      <div class="login-link" style="margin-top:1rem;">
+        Déjà un compte ? <a href="/login">Se connecter</a>
+      </div>
+    </div>
+
+    <!-- STEP 2: Email verification -->
+    <div id="step2" style="display:none;">
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">📧</div>
+        <p style="font-size:13px;color:var(--gray);font-family:'Space Mono',monospace;">
+          Un code à 6 chiffres a été envoyé à<br>
+          <strong id="emailDisplay" style="color:var(--black);"></strong>
+        </p>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Code de vérification</label>
+        <div style="display:flex;gap:10px;justify-content:center;margin:8px 0;">
+          <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" data-index="0">
+          <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" data-index="1">
+          <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" data-index="2">
+          <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" data-index="3">
+          <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" data-index="4">
+          <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" data-index="5">
+        </div>
+        <!-- Hidden input to collect full code for submit logic -->
+        <input type="hidden" id="verifyCode">
+        <div style="margin-top:6px;font-size:10px;color:var(--gray);font-family:'Space Mono',monospace;text-align:center;">
+          Code valable 15 minutes
+        </div>
+      </div>
+
+      <button class="btn-register" id="verifyBtn" type="button">
+        <span class="btn-text">Vérifier &amp; Créer le compte</span>
+        <div class="spinner"></div>
+      </button>
+
+      <div class="error-msg" id="verifyErrorMsg"></div>
+      <div class="success-msg" id="successMsg"></div>
+
+      <div style="margin-top:1rem;text-align:center;">
+        <button type="button" onclick="goBackToStep1()"
+          style="background:none;border:none;color:var(--gray);font-size:11px;font-family:'Space Mono',monospace;cursor:none;text-decoration:underline;">
+          ← Retour / Modifier mes infos
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="version-tag">Secured · v11 · AAA</div>
+</div>
+
+<script>
+  // ── Cursor ──
+  const cur = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => { cur.style.left = e.clientX + 'px'; cur.style.top = e.clientY + 'px'; });
+  document.querySelectorAll('button, input, a, label').forEach(el => {
+    el.addEventListener('mouseenter', () => cur.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cur.classList.remove('hover'));
+  });
+
+  // ── Eye toggles ──
+  function toggleEye(inputId, btn) {
+    const inp = document.getElementById(inputId);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  // ── Admin code field ──
+  function toggleAdminCode(show) {
+    document.getElementById('adminCodeField').style.display = show ? 'block' : 'none';
+  }
+
+  // ── Password strength ──
+  function checkStrength(val) {
+    const fill  = document.getElementById('strengthFill');
+    const label = document.getElementById('strengthLabel');
+    if (!val) { fill.style.width = '0'; label.textContent = ''; return; }
+    let score = 0;
+    if (val.length >= 6)  score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const levels = [
+      { pct: '20%', color: '#E63946', text: 'Très faible' },
+      { pct: '40%', color: '#f97316', text: 'Faible' },
+      { pct: '60%', color: '#eab308', text: 'Moyen' },
+      { pct: '80%', color: '#22c55e', text: 'Fort' },
+      { pct: '100%', color: '#1A8C6E', text: 'Très fort' },
+    ];
+    const lvl = levels[Math.max(0, score - 1)];
+    fill.style.width    = lvl.pct;
+    fill.style.background = lvl.color;
+    label.textContent   = lvl.text;
+    label.style.color   = lvl.color;
+  }
+
+  // ── State ──
+  let pendingToken = null;
+
+  // ── Elements ──
+  const registerBtn    = document.getElementById('registerBtn');
+  const verifyBtn      = document.getElementById('verifyBtn');
+  const errorMsg       = document.getElementById('errorMsg');
+  const verifyErrorMsg = document.getElementById('verifyErrorMsg');
+  const successMsg     = document.getElementById('successMsg');
+  const step1          = document.getElementById('step1');
+  const step2          = document.getElementById('step2');
+
+  // ── Step 1 : Submit registration → send email ──
+  async function doRegister() {
+    const username  = document.getElementById('username').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const password  = document.getElementById('password').value;
+    const confirm   = document.getElementById('confirm').value;
+    const role      = document.querySelector('input[name="role"]:checked').value;
+    const adminCode = document.getElementById('adminCode').value;
+
+    errorMsg.classList.remove('visible');
+
+    if (!username || !email || !password) { showError('Tous les champs sont requis'); return; }
+    if (username.length < 3)  { showError('Identifiant trop court (min. 3 caractères)'); return; }
+    if (password.length < 6)  { showError('Mot de passe trop court (min. 6 caractères)'); return; }
+    if (password !== confirm)  { showError('Les mots de passe ne correspondent pas'); return; }
+    if (!email.includes('@') || !email.split('@')[1]?.includes('.'))
+      { showError('Adresse email invalide'); return; }
+
+    registerBtn.classList.add('loading');
+    registerBtn.disabled = true;
+
+    try {
+      const res  = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password, role, admin_code: adminCode })
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        pendingToken = data.token;
+        // Show step 2
+        document.getElementById('emailDisplay').textContent = email;
+        step1.style.display = 'none';
+        step2.style.display = 'block';
+        document.querySelector('.otp-box[data-index="0"]').focus();
+        // OTP box logic
+        document.querySelectorAll('.otp-box').forEach((box, i, boxes) => {
+          box.addEventListener('input', e => {
+            const val = e.target.value.replace(/\D/g,'');
+            e.target.value = val ? val[0] : '';
+            if (val) { box.classList.add('filled'); if (i < 5) boxes[i+1].focus(); }
+            else box.classList.remove('filled');
+            syncOtpHidden();
+          });
+          box.addEventListener('keydown', e => {
+            if (e.key === 'Backspace' && !box.value && i > 0) { boxes[i-1].focus(); boxes[i-1].value = ''; boxes[i-1].classList.remove('filled'); syncOtpHidden(); }
+            if (e.key === 'ArrowLeft' && i > 0) boxes[i-1].focus();
+            if (e.key === 'ArrowRight' && i < 5) boxes[i+1].focus();
+          });
+          box.addEventListener('paste', e => {
+            e.preventDefault();
+            const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+            [...pasted].forEach((ch, j) => { if (boxes[j]) { boxes[j].value = ch; boxes[j].classList.add('filled'); } });
+            if (boxes[pasted.length - 1]) boxes[Math.min(pasted.length, 5)].focus();
+            syncOtpHidden();
+          });
+        });
+        function syncOtpHidden() {
+          const code = [...document.querySelectorAll('.otp-box')].map(b => b.value).join('');
+          document.getElementById('verifyCode').value = code;
+        }
+      } else {
+        showError(data.error || 'Erreur lors de l\'envoi du code');
+      }
+    } catch(e) {
+      showError('Erreur réseau — serveur injoignable');
+    } finally {
+      registerBtn.classList.remove('loading');
+      registerBtn.disabled = false;
+    }
+  }
+
+  // ── Step 2 : Verify code ──
+  async function doVerify() {
+    const code = document.getElementById('verifyCode').value.trim();
+    verifyErrorMsg.classList.remove('visible');
+    successMsg.classList.remove('visible');
+
+    if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+      showVerifyError('Le code doit contenir 6 chiffres'); return;
+    }
+    if (!pendingToken) { showVerifyError('Session invalide — recommencez'); return; }
+
+    verifyBtn.classList.add('loading');
+    verifyBtn.disabled = true;
+
+    try {
+      const res  = await fetch('/api/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: pendingToken, code })
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        successMsg.textContent = `✅ Compte "${data.username}" créé ! Redirection vers la connexion...`;
+        successMsg.classList.add('visible');
+        verifyBtn.style.display = 'none';
+        setTimeout(() => window.location.href = '/login', 2000);
+      } else {
+        showVerifyError(data.error || 'Code incorrect');
+      }
+    } catch(e) {
+      showVerifyError('Erreur réseau — serveur injoignable');
+    } finally {
+      verifyBtn.classList.remove('loading');
+      verifyBtn.disabled = false;
+    }
+  }
+
+  function goBackToStep1() {
+    step2.style.display = 'none';
+    step1.style.display = 'block';
+    pendingToken = null;
+    document.querySelectorAll('.otp-box').forEach(b => { b.value = ''; b.classList.remove('filled'); });
+    document.getElementById('verifyCode').value = '';
+    verifyErrorMsg.classList.remove('visible');
+    successMsg.classList.remove('visible');
+  }
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.classList.add('visible');
+  }
+  function showVerifyError(msg) {
+    verifyErrorMsg.textContent = msg;
+    verifyErrorMsg.classList.add('visible');
+  }
+
+  // ── Event listeners ──
+  registerBtn.addEventListener('click', doRegister);
+  verifyBtn.addEventListener('click', doVerify);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      if (step2.style.display !== 'none') doVerify();
+      else doRegister();
+    }
+  });
+  document.getElementById('username').focus();
+
+  // ── Google OAuth button ──
+  const googleBtn = document.getElementById('googleBtn');
+  fetch('/api/google-oauth-status')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.enabled) {
+        googleBtn.disabled = true;
+        document.getElementById('googleNotConfigured').style.display = 'block';
+      }
+    }).catch(() => {});
+
+  googleBtn.addEventListener('click', () => {
+    window.location.href = '/auth/google';
+  });
+</script>
+</body>
+</html>

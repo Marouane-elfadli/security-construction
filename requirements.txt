@@ -1,0 +1,11 @@
+flask>=3.0.0
+flask-cors>=4.0.0
+flask-login>=0.6.3
+flask-limiter>=3.5.0
+ultralytics>=8.2.0
+opencv-python-headless>=4.9.0
+Pillow>=10.0.0
+numpy>=1.26.0
+flask-dance>=7.0.0
+python-dotenv>=1.0.0
+pyopenssl>=24.0.0

@@ -1,0 +1,136 @@
+2026-05-14 01:30:29,717 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:5000
+ * Running on https://73.73.1.13:5000
+2026-05-14 01:30:29,717 [INFO] [33mPress CTRL+C to quit[0m
+2026-05-14 01:30:41,449 [INFO] 127.0.0.1 - - [14/May/2026 01:30:41] "[32mGET / HTTP/1.1[0m" 302 -
+2026-05-14 01:30:41,488 [INFO] 127.0.0.1 - - [14/May/2026 01:30:41] "GET /login?next=/ HTTP/1.1" 200 -
+2026-05-14 01:30:41,694 [INFO] 127.0.0.1 - - [14/May/2026 01:30:41] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-14 01:30:44,237 [INFO] 127.0.0.1 - - [14/May/2026 01:30:44] "GET /register HTTP/1.1" 200 -
+2026-05-14 01:30:44,293 [INFO] 127.0.0.1 - - [14/May/2026 01:30:44] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-14 01:31:13,185 [INFO] [REGISTER_PENDING] user=anonymous ip=127.0.0.1 username=megas123 email=mastermagmazevg@gmail.com
+2026-05-14 01:31:13,186 [INFO] 127.0.0.1 - - [14/May/2026 01:31:13] "POST /api/register HTTP/1.1" 200 -
+2026-05-14 01:31:29,197 [INFO] [REGISTER_SUCCESS] user=megas123 ip=127.0.0.1 username=megas123 role=viewer
+2026-05-14 01:31:29,197 [INFO] 127.0.0.1 - - [14/May/2026 01:31:29] "[35m[1mPOST /api/verify-email HTTP/1.1[0m" 201 -
+2026-05-14 01:31:31,267 [INFO] 127.0.0.1 - - [14/May/2026 01:31:31] "[32mGET /login HTTP/1.1[0m" 302 -
+2026-05-14 01:31:31,317 [INFO] 127.0.0.1 - - [14/May/2026 01:31:31] "GET / HTTP/1.1" 200 -
+2026-05-14 01:31:31,433 [INFO] 127.0.0.1 - - [14/May/2026 01:31:31] "GET /api/me HTTP/1.1" 200 -
+2026-05-14 01:31:48,163 [INFO] 127.0.0.1 - - [14/May/2026 01:31:48] "GET /monitor HTTP/1.1" 200 -
+2026-05-14 01:31:48,264 [INFO] 127.0.0.1 - - [14/May/2026 01:31:48] "GET /api/history HTTP/1.1" 200 -
+2026-05-14 01:31:48,265 [INFO] 127.0.0.1 - - [14/May/2026 01:31:48] "GET /api/me HTTP/1.1" 200 -
+2026-05-14 01:31:48,271 [INFO] 127.0.0.1 - - [14/May/2026 01:31:48] "GET /api/status HTTP/1.1" 200 -
+2026-05-14 01:31:55,944 [INFO] [ANALYZE_OK] user=megas123 ip=127.0.0.1 score=7 level=LOW persons=2
+2026-05-14 01:31:55,946 [INFO] 127.0.0.1 - - [14/May/2026 01:31:55] "POST /api/analyze HTTP/1.1" 200 -
+2026-05-14 11:44:07,728 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:5000
+ * Running on https://73.73.1.13:5000
+2026-05-14 11:44:07,729 [INFO] [33mPress CTRL+C to quit[0m
+2026-05-14 11:44:13,706 [INFO] 127.0.0.1 - - [14/May/2026 11:44:13] "[32mGET / HTTP/1.1[0m" 302 -
+2026-05-14 11:44:13,752 [INFO] 127.0.0.1 - - [14/May/2026 11:44:13] "GET /login?next=/ HTTP/1.1" 200 -
+2026-05-14 11:44:13,809 [INFO] 127.0.0.1 - - [14/May/2026 11:44:13] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-14 11:44:22,452 [INFO] 127.0.0.1 - - [14/May/2026 11:44:22] "GET /register HTTP/1.1" 200 -
+2026-05-14 11:44:22,482 [INFO] 127.0.0.1 - - [14/May/2026 11:44:22] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-14 11:44:42,697 [INFO] [REGISTER_PENDING] user=anonymous ip=127.0.0.1 username=test213 email=mastermagmazevg@gmail.com
+2026-05-14 11:44:42,698 [INFO] 127.0.0.1 - - [14/May/2026 11:44:42] "POST /api/register HTTP/1.1" 200 -
+2026-05-14 11:44:53,217 [INFO] [REGISTER_SUCCESS] user=anonymous ip=127.0.0.1 username=test213 role=viewer
+2026-05-14 11:44:53,218 [INFO] 127.0.0.1 - - [14/May/2026 11:44:53] "[35m[1mPOST /api/verify-email HTTP/1.1[0m" 201 -
+2026-05-14 11:44:55,231 [INFO] 127.0.0.1 - - [14/May/2026 11:44:55] "GET /login HTTP/1.1" 200 -
+2026-05-14 11:44:55,260 [INFO] 127.0.0.1 - - [14/May/2026 11:44:55] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-14 11:45:00,854 [INFO] [LOGIN_SUCCESS] user=admin ip=127.0.0.1 username=admin
+2026-05-14 11:45:00,854 [INFO] 127.0.0.1 - - [14/May/2026 11:45:00] "POST /api/login HTTP/1.1" 200 -
+2026-05-14 11:45:01,147 [INFO] 127.0.0.1 - - [14/May/2026 11:45:01] "GET / HTTP/1.1" 200 -
+2026-05-14 11:45:01,252 [INFO] 127.0.0.1 - - [14/May/2026 11:45:01] "GET /api/me HTTP/1.1" 200 -
+2026-05-14 18:03:26,775 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:5000
+ * Running on https://73.73.1.13:5000
+2026-05-14 18:03:26,775 [INFO] [33mPress CTRL+C to quit[0m
+2026-05-14 18:04:31,221 [INFO] 73.73.1.13 - - [14/May/2026 18:04:31] "[32mGET / HTTP/1.1[0m" 302 -
+2026-05-14 18:04:31,287 [INFO] 73.73.1.13 - - [14/May/2026 18:04:31] "GET /login?next=/ HTTP/1.1" 200 -
+2026-05-14 18:04:31,592 [INFO] 73.73.1.13 - - [14/May/2026 18:04:31] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-14 18:04:31,840 [INFO] 73.73.1.13 - - [14/May/2026 18:04:31] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-14 18:04:35,519 [INFO] 73.73.1.13 - - [14/May/2026 18:04:35] "GET /register HTTP/1.1" 200 -
+2026-05-14 18:04:35,634 [INFO] 73.73.1.13 - - [14/May/2026 18:04:35] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-14 18:06:19,592 [INFO] [REGISTER_PENDING] user=anonymous ip=73.73.1.13 username=amin123 email=amine4studies@gmail.com
+2026-05-14 18:06:19,592 [INFO] 73.73.1.13 - - [14/May/2026 18:06:19] "POST /api/register HTTP/1.1" 200 -
+2026-05-14 18:08:34,006 [INFO] [REGISTER_SUCCESS] user=anonymous ip=73.73.1.13 username=amin123 role=viewer
+2026-05-14 18:08:34,006 [INFO] 73.73.1.13 - - [14/May/2026 18:08:34] "[35m[1mPOST /api/verify-email HTTP/1.1[0m" 201 -
+2026-05-14 18:08:36,072 [INFO] 73.73.1.13 - - [14/May/2026 18:08:36] "GET /login HTTP/1.1" 200 -
+2026-05-14 18:08:36,193 [INFO] 73.73.1.13 - - [14/May/2026 18:08:36] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-14 18:08:46,894 [INFO] [LOGIN_SUCCESS] user=amin123 ip=73.73.1.13 username=amin123
+2026-05-14 18:08:46,894 [INFO] 73.73.1.13 - - [14/May/2026 18:08:46] "POST /api/login HTTP/1.1" 200 -
+2026-05-14 18:08:47,241 [INFO] 73.73.1.13 - - [14/May/2026 18:08:47] "GET / HTTP/1.1" 200 -
+2026-05-14 18:08:48,632 [INFO] 73.73.1.13 - - [14/May/2026 18:08:48] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-14 18:08:48,749 [INFO] 73.73.1.13 - - [14/May/2026 18:08:48] "GET /api/me HTTP/1.1" 200 -
+2026-05-14 18:09:02,120 [INFO] 73.73.1.13 - - [14/May/2026 18:09:02] "GET /monitor HTTP/1.1" 200 -
+2026-05-14 18:09:02,398 [INFO] 73.73.1.13 - - [14/May/2026 18:09:02] "GET /api/history HTTP/1.1" 200 -
+2026-05-14 18:09:02,398 [INFO] 73.73.1.13 - - [14/May/2026 18:09:02] "GET /api/me HTTP/1.1" 200 -
+2026-05-14 18:09:02,405 [INFO] 73.73.1.13 - - [14/May/2026 18:09:02] "GET /api/status HTTP/1.1" 200 -
+2026-05-14 18:09:12,103 [INFO] [ANALYZE_OK] user=amin123 ip=73.73.1.13 score=0 level=SAFE persons=1
+2026-05-14 18:09:12,105 [INFO] 73.73.1.13 - - [14/May/2026 18:09:12] "POST /api/analyze HTTP/1.1" 200 -
+2026-05-14 18:09:15,738 [INFO] 73.73.1.13 - - [14/May/2026 18:09:15] "GET /api/history HTTP/1.1" 200 -
+2026-05-14 18:09:50,172 [INFO] 73.73.1.13 - - [14/May/2026 18:09:50] "[36mGET / HTTP/1.1[0m" 304 -
+2026-05-14 18:09:50,271 [INFO] 73.73.1.13 - - [14/May/2026 18:09:50] "GET /api/me HTTP/1.1" 200 -
+2026-05-14 18:09:59,551 [INFO] [LOGOUT] user=amin123 ip=73.73.1.13 
+2026-05-14 18:09:59,551 [INFO] 73.73.1.13 - - [14/May/2026 18:09:59] "POST /api/logout HTTP/1.1" 200 -
+2026-05-14 18:09:59,578 [INFO] 73.73.1.13 - - [14/May/2026 18:09:59] "[36mGET /login HTTP/1.1[0m" 304 -
+2026-05-14 18:09:59,643 [INFO] 73.73.1.13 - - [14/May/2026 18:09:59] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-14 18:09:59,787 [INFO] 73.73.1.13 - - [14/May/2026 18:09:59] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-14 18:10:44,765 [INFO] [LOGIN_SUCCESS] user=amin123 ip=73.73.1.13 username=amin123
+2026-05-14 18:10:44,765 [INFO] 73.73.1.13 - - [14/May/2026 18:10:44] "POST /api/login HTTP/1.1" 200 -
+2026-05-14 18:10:45,079 [INFO] 73.73.1.13 - - [14/May/2026 18:10:45] "[36mGET / HTTP/1.1[0m" 304 -
+2026-05-14 18:10:45,152 [INFO] 73.73.1.13 - - [14/May/2026 18:10:45] "GET /api/me HTTP/1.1" 200 -
+2026-05-14 18:10:45,180 [INFO] 73.73.1.13 - - [14/May/2026 18:10:45] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-14 18:10:50,537 [INFO] [LOGOUT] user=amin123 ip=73.73.1.13 
+2026-05-14 18:10:50,537 [INFO] 73.73.1.13 - - [14/May/2026 18:10:50] "POST /api/logout HTTP/1.1" 200 -
+2026-05-14 18:10:50,563 [INFO] 73.73.1.13 - - [14/May/2026 18:10:50] "[36mGET /login HTTP/1.1[0m" 304 -
+2026-05-14 18:10:50,628 [INFO] 73.73.1.13 - - [14/May/2026 18:10:50] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-14 18:10:50,786 [INFO] 73.73.1.13 - - [14/May/2026 18:10:50] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-15 00:20:30,754 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:5000
+ * Running on https://73.73.1.13:5000
+2026-05-15 00:20:30,754 [INFO] [33mPress CTRL+C to quit[0m
+2026-05-15 13:39:16,576 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:5000
+ * Running on https://73.73.1.13:5000
+2026-05-15 13:39:16,576 [INFO] [33mPress CTRL+C to quit[0m
+2026-05-15 13:39:27,522 [INFO] 73.73.1.13 - - [15/May/2026 13:39:27] "[32mGET / HTTP/1.1[0m" 302 -
+2026-05-15 13:39:27,583 [INFO] 73.73.1.13 - - [15/May/2026 13:39:27] "GET /login?next=/ HTTP/1.1" 200 -
+2026-05-15 13:39:27,881 [INFO] 73.73.1.13 - - [15/May/2026 13:39:27] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-15 13:39:28,052 [INFO] 73.73.1.13 - - [15/May/2026 13:39:28] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-15 13:39:29,311 [INFO] [LOGIN_SUCCESS] user=amin123 ip=73.73.1.13 username=amin123
+2026-05-15 13:39:29,312 [INFO] 73.73.1.13 - - [15/May/2026 13:39:29] "POST /api/login HTTP/1.1" 200 -
+2026-05-15 13:39:29,628 [INFO] 73.73.1.13 - - [15/May/2026 13:39:29] "GET / HTTP/1.1" 200 -
+2026-05-15 13:39:30,960 [INFO] 73.73.1.13 - - [15/May/2026 13:39:30] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-15 13:39:31,135 [INFO] 73.73.1.13 - - [15/May/2026 13:39:31] "GET /api/me HTTP/1.1" 200 -
+2026-05-15 13:40:14,686 [INFO] [LOGOUT] user=amin123 ip=73.73.1.13 
+2026-05-15 13:40:14,687 [INFO] 73.73.1.13 - - [15/May/2026 13:40:14] "POST /api/logout HTTP/1.1" 200 -
+2026-05-15 13:40:14,711 [INFO] 73.73.1.13 - - [15/May/2026 13:40:14] "[36mGET /login HTTP/1.1[0m" 304 -
+2026-05-15 13:40:14,783 [INFO] 73.73.1.13 - - [15/May/2026 13:40:14] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-15 13:40:14,926 [INFO] 73.73.1.13 - - [15/May/2026 13:40:14] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-15 13:40:16,854 [INFO] 73.73.1.13 - - [15/May/2026 13:40:16] "GET /register HTTP/1.1" 200 -
+2026-05-15 13:40:16,967 [INFO] 73.73.1.13 - - [15/May/2026 13:40:16] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-15 13:40:33,394 [INFO] [REGISTER_PENDING] user=anonymous ip=73.73.1.13 username=test1 email=marouane.elfadli@um5r.ac.ma
+2026-05-15 13:40:33,395 [INFO] 73.73.1.13 - - [15/May/2026 13:40:33] "POST /api/register HTTP/1.1" 200 -
+2026-05-15 13:40:41,401 [INFO] [REGISTER_SUCCESS] user=anonymous ip=73.73.1.13 username=test1 role=viewer
+2026-05-15 13:40:41,401 [INFO] 73.73.1.13 - - [15/May/2026 13:40:41] "[35m[1mPOST /api/verify-email HTTP/1.1[0m" 201 -
+2026-05-15 13:40:43,475 [INFO] 73.73.1.13 - - [15/May/2026 13:40:43] "[36mGET /login HTTP/1.1[0m" 304 -
+2026-05-15 13:40:43,572 [INFO] 73.73.1.13 - - [15/May/2026 13:40:43] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-15 13:40:56,669 [INFO] [LOGIN_SUCCESS] user=test1 ip=73.73.1.13 username=test1
+2026-05-15 13:40:56,670 [INFO] 73.73.1.13 - - [15/May/2026 13:40:56] "POST /api/login HTTP/1.1" 200 -
+2026-05-15 13:40:56,968 [INFO] 73.73.1.13 - - [15/May/2026 13:40:56] "[36mGET / HTTP/1.1[0m" 304 -
+2026-05-15 13:40:57,040 [INFO] 73.73.1.13 - - [15/May/2026 13:40:57] "GET /api/me HTTP/1.1" 200 -
+2026-05-15 13:40:57,067 [INFO] 73.73.1.13 - - [15/May/2026 13:40:57] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-15 13:56:46,842 [INFO] [LOGOUT] user=test1 ip=73.73.1.13 
+2026-05-15 13:56:46,843 [INFO] 73.73.1.13 - - [15/May/2026 13:56:46] "POST /api/logout HTTP/1.1" 200 -
+2026-05-15 13:56:46,880 [INFO] 73.73.1.13 - - [15/May/2026 13:56:46] "[36mGET /login HTTP/1.1[0m" 304 -
+2026-05-15 13:56:46,947 [INFO] 73.73.1.13 - - [15/May/2026 13:56:46] "GET /api/google-oauth-status HTTP/1.1" 200 -
+2026-05-15 13:56:47,078 [INFO] 73.73.1.13 - - [15/May/2026 13:56:47] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-15 13:57:46,548 [INFO] [LOGIN_SUCCESS] user=admin ip=73.73.1.13 username=admin
+2026-05-15 13:57:46,549 [INFO] 73.73.1.13 - - [15/May/2026 13:57:46] "POST /api/login HTTP/1.1" 200 -
+2026-05-15 13:57:46,891 [INFO] 73.73.1.13 - - [15/May/2026 13:57:46] "[36mGET / HTTP/1.1[0m" 304 -
+2026-05-15 13:57:47,022 [INFO] 73.73.1.13 - - [15/May/2026 13:57:47] "GET /api/me HTTP/1.1" 200 -
+2026-05-15 13:57:47,163 [INFO] 73.73.1.13 - - [15/May/2026 13:57:47] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
